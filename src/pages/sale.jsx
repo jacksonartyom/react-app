@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import PaymentModal from "../components/paymentModal";
+import Input from "../components/Input";
+import { useCart } from "../context/CartContext";
 
 function Sale() {
   const [view, setView] = useState("card");
@@ -21,7 +23,12 @@ function Sale() {
     { id: 12, name: "Item 12", price: 1200, image: null },
   ]);
 
-  const [cart, setCart] = useState([]);
+  // const [items, setItems] = useState([]);
+
+  const [searchItem, setSearchItem] = useState("");
+
+  const { cart, addToCart, increaseQty, decreaseQty, totalPrice, setCart } =
+    useCart();
 
   // ---------------- Pagination ----------------
   const [currentPage, setCurrentPage] = useState(1);
@@ -31,45 +38,29 @@ function Sale() {
   const currentItems = items.slice(indexOfLast - itemsPerPage, indexOfLast);
   const totalPages = Math.ceil(items.length / itemsPerPage);
 
-  // ---------------- Cart Logic ----------------
-  const addToCart = (item) => {
-    setCart((prev) => {
-      const exist = prev.find((i) => i.id === item.id);
-
-      if (exist) {
-        return prev.map((i) =>
-          i.id === item.id ? { ...i, qty: i.qty + 1 } : i,
-        );
-      }
-
-      return [...prev, { ...item, qty: 1 }];
-    });
-  };
-
-  const increaseQty = (id) => {
-    setCart((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, qty: i.qty + 1 } : i)),
-    );
-  };
-
-  const decreaseQty = (id) => {
-    setCart((prev) =>
-      prev
-        .map((i) => (i.id === id ? { ...i, qty: i.qty - 1 } : i))
-        .filter((i) => i.qty > 0),
-    );
-  };
-
-  const totalPrice = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-
   const handerCheckout = () => {
     console.log(cart);
+  };
+
+  const handleSearch = () => {
+    console.log(searchItem);
   };
 
   // ---------------- UI ----------------
   return (
     <div className="container mt-4">
-      <h3>Sale</h3>
+      <Input
+        label="SearchItem"
+        name="searchItem"
+        value={searchItem}
+        onChange={(e) => setSearchItem(e.target.value)}
+        placeholder="Enter item"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            handleSearch();
+          }
+        }}
+      />
 
       {/* Toggle */}
       <div className="mb-3">
@@ -95,7 +86,9 @@ function Sale() {
       <div className="row">
         {/* ----------- PRODUCT LIST ----------- */}
         <div className="col-md-8">
-          {view === "card" ? (
+          {items.length === 0 ? (
+            <p>No items</p>
+          ) : view === "card" ? (
             <div className="row">
               {currentItems.map((item) => (
                 <div className="col-md-6 mb-3" key={item.id}>
@@ -137,50 +130,56 @@ function Sale() {
             </ul>
           )}
 
-          {/* Pagination */}
-          <nav className="mt-3">
-            <ul className="pagination">
-              <li className={`page-item ${currentPage === 1 && "disabled"}`}>
-                <button
-                  className="page-link"
-                  onClick={() => setCurrentPage((p) => p - 1)}
-                >
-                  Prev
-                </button>
-              </li>
-
-              {[...Array(totalPages)].map((_, i) => (
-                <li
-                  key={i}
-                  className={`page-item ${currentPage === i + 1 && "active"}`}
-                >
-                  <button
-                    className="page-link"
-                    onClick={() => setCurrentPage(i + 1)}
+          {items.length > 0 && (
+            <>
+              {/* Pagination */}
+              <nav className="mt-3">
+                <ul className="pagination">
+                  <li
+                    className={`page-item ${currentPage === 1 && "disabled"}`}
                   >
-                    {i + 1}
-                  </button>
-                </li>
-              ))}
+                    <button
+                      className="page-link"
+                      onClick={() => setCurrentPage((p) => p - 1)}
+                    >
+                      Prev
+                    </button>
+                  </li>
 
-              <li
-                className={`page-item ${
-                  currentPage === totalPages && "disabled"
-                }`}
-              >
-                <button
-                  className="page-link"
-                  onClick={() => setCurrentPage((p) => p + 1)}
-                >
-                  Next
-                </button>
-              </li>
-            </ul>
-          </nav>
+                  {[...Array(totalPages)].map((_, i) => (
+                    <li
+                      key={i}
+                      className={`page-item ${currentPage === i + 1 && "active"}`}
+                    >
+                      <button
+                        className="page-link"
+                        onClick={() => setCurrentPage(i + 1)}
+                      >
+                        {i + 1}
+                      </button>
+                    </li>
+                  ))}
+
+                  <li
+                    className={`page-item ${
+                      currentPage === totalPages && "disabled"
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => setCurrentPage((p) => p + 1)}
+                    >
+                      Next
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </>
+          )}
         </div>
 
         {/* ----------- CART ----------- */}
-        <div className="col-md-4">
+        {/* <div className="col-md-4">
           <h5>Cart</h5>
 
           {cart.length === 0 ? (
@@ -240,7 +239,7 @@ function Sale() {
               setCart([]);
             }}
           />
-        </div>
+        </div> */}
       </div>
     </div>
   );

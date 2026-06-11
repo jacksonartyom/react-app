@@ -10,6 +10,7 @@ function Input({
   placeholder,
   required,
   accept,
+  ...rest
 }) {
   return (
     <div className="mb-3 text-start">
@@ -19,11 +20,12 @@ function Input({
         type={type}
         name={name}
         className="form-control"
-        value={type !== "file" ? value : undefined} // 👈 สำคัญ
+        value={type !== "file" ? value : undefined}
         onChange={onChange}
         placeholder={placeholder}
         required={required}
-        accept={accept} // 👈 สำหรับ file
+        accept={accept} //
+        {...rest}
       />
     </div>
   );

@@ -5,24 +5,29 @@ import ProtectedRoute from "./components/protectedRoute";
 import MainLayout from "./components/mainLayout";
 import Items from "./pages/items";
 import Sale from "./pages/sale";
+import { CartProvider } from "./context/CartContext";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* public */}
-        <Route path="/" element={<Login />} />
+    <CartProvider>
+      {" "}
+      {/* ✅ ครอบตรงนี้ */}
+      <BrowserRouter>
+        <Routes>
+          {/* public */}
+          <Route path="/" element={<Login />} />
 
-        {/* protected */}
-        <Route element={<ProtectedRoute />}>
-          <Route element={<MainLayout />}>
-            <Route path="/home" element={<Home />} />
-            <Route path="/items" element={<Items />} />
-            <Route path="/sale" element={<Sale />} />
+          {/* protected */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<MainLayout />}>
+              <Route path="/home" element={<Home />} />
+              <Route path="/items" element={<Items />} />
+              <Route path="/sale" element={<Sale />} />
+            </Route>
           </Route>
-        </Route>
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </CartProvider>
   );
 }
 
